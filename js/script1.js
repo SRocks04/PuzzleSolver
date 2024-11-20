@@ -164,11 +164,7 @@ class SudokuGame {
     isComplete() {
         for(let i = 0; i < 9; i++) {
             for(let j = 0; j < 9; j++) {
-                // if(this.grid[i][j] !== this.solution[i][j]) {
-                //     return false;
-                // }
-
-                if (this.isValid(this.grid[i][j], [i, j], this.grid) === false) {
+                if(this.grid[i][j] !== this.solution[i][j]) {
                     return false;
                 }
             }
