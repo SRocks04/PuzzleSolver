@@ -24,6 +24,9 @@ body, h1, h2, p {
   
   .header {
     margin-bottom: 40px;
+    font-size: 1rem;
+    color: gray;
+    margin-top: 10px;
   }
   
   .header h1 {
