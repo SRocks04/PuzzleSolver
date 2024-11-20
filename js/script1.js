@@ -5,20 +5,87 @@ class SudokuGame {
         this.initializeGame();
     }
 
+    generateRandomComplete() {
+        const board = Array(9).fill().map(() => Array(9).fill(0));
+
+        // Fill diagonal 3x3 boxes first (they are independent)
+        for(let box = 0; box < 9; box += 3) {
+            const nums = [1,2,3,4,5,6,7,8,9];
+            for(let i = 0; i < 3; i++) {
+                for(let j = 0; j < 3; j++) {
+                    const randomIndex = Math.floor(Math.random() * nums.length);
+                    board[box + i][box + j] = nums[randomIndex];
+                    nums.splice(randomIndex, 1);
+                }
+            }
+        }
+
+        // Solve the rest
+        this.solveSudoku(board);
+        return board;
+    }
+
+    createPuzzle(completeBoard, difficulty = 40) {
+        const puzzle = completeBoard.map(row => [...row]);
+        const positions = [];
+
+        for(let i = 0; i < 9; i++) {
+            for(let j = 0; j < 9; j++) {
+                positions.push([i, j]);
+            }
+        }
+
+        while(positions.length > 0 && difficulty > 0) {
+            const randomIndex = Math.floor(Math.random() * positions.length);
+            const [row, col] = positions[randomIndex];
+            positions.splice(randomIndex, 1);
+
+            const temp = puzzle[row][col];
+            puzzle[row][col] = 0;
+
+            const boardCopy = puzzle.map(row => [...row]);
+
+            if(!this.hasUniqueSolution(boardCopy)) {
+                puzzle[row][col] = temp;
+            } else {
+                difficulty--;
+            }
+        }
+
+        return puzzle;
+    }
+
+    hasUniqueSolution(board) {
+        let solutions = 0;
+
+        const solve = (board) => {
+            if(solutions > 1) return;
+
+            let find = this.findEmpty(board);
+            if(!find) {
+                solutions++;
+                return;
+            }
+
+            const [row, col] = find;
+            for(let num = 1; num <= 9; num++) {
+                if(this.isValid(num, [row, col], board)) {
+                    board[row][col] = num;
+                    solve(board);
+                    board[row][col] = 0;
+                }
+            }
+        }
+
+        solve(board);
+        return solutions === 1;
+    }
+
     initializeGame() {
-        const puzzle = [
-            [5,3,0,0,7,0,0,0,0],
-            [6,0,0,1,9,5,0,0,0],
-            [0,9,8,0,0,0,0,6,0],
-            [8,0,0,0,6,0,0,0,3],
-            [4,0,0,8,0,3,0,0,1],
-            [7,0,0,0,2,0,0,0,6],
-            [0,6,0,0,0,0,2,8,0],
-            [0,0,0,4,1,9,0,0,5],
-            [0,0,0,0,8,0,0,7,9]
-        ];
+        const completeBoard = this.generateRandomComplete();
+        const puzzle = this.createPuzzle(completeBoard);
         this.grid = puzzle.map(row => [...row]);
-        this.solution = this.solveSudoku([...puzzle.map(row => [...row])]);
+        this.solution = completeBoard;
     }
 
     isValid(num, pos, board) {
@@ -97,7 +164,11 @@ class SudokuGame {
     isComplete() {
         for(let i = 0; i < 9; i++) {
             for(let j = 0; j < 9; j++) {
-                if(this.grid[i][j] !== this.solution[i][j]) {
+                // if(this.grid[i][j] !== this.solution[i][j]) {
+                //     return false;
+                // }
+
+                if (this.isValid(this.grid[i][j], [i, j], this.grid) === false) {
                     return false;
                 }
             }
