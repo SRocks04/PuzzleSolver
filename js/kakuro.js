@@ -29,6 +29,7 @@ class KakuroGame {
             }
             if (board[row][i].type=="empty") {
                 if (board[row][i].value) {
+                    if (board[row][i].value==num) return false;
                     horisummin += board[row][i].value;
                     horisummax += board[row][i].value;
                 }
@@ -49,6 +50,7 @@ class KakuroGame {
             }
             if (board[i][col].type=="empty") {
                 if (board[i][col].value) {
+                    if (board[i][col].value==num) return false;
                     vertsummin += board[i][col].value;
                     vertsummax += board[i][col].value;
                 }
